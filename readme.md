@@ -3,6 +3,8 @@
 
 Live Demo: [FGx Terrain Viewer JS]( http://fgx.github.io/fgx-terrain-viewer-js/index.html "Happ viewing!" )
 
+- very preliminary
+
 ## Concept
 3D Globe data viewer for FGx Terrain data.
 
