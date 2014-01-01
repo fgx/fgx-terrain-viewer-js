@@ -1,12 +1,24 @@
 ![FGx Logo]( http://fgx.github.io/images/fgx-cap-40x30.png) FGx Terrain Viewer JS R1
 ====================================================================================
 
-Live Demo: [FGx Terrain Viewer JS]( http://fgx.github.io/fgx-terrain-viewer-js/index.html "Happ viewing!" )
+Live Demo: [FGx Terrain Viewer JS]( http://fgx.github.io/fgx-terrain-viewer-js/index.html "Happy viewing!" )
 
 - very preliminary
 
+Live demo: [FGx 3D Haiti]( http://fgx.github.io/fgx-terrain-viewer-js/haiti/haiti.html )
+
+* First crack at getting Yves' data on line in 3D.
+* Camera target point id hard-wired for each zoom level. 
+* Generally aims towards Pot au Prince except for zoom level 5.
+ 
+Nice Height Maps
+
+* [Globa Tectonics Images]( images/readme.html )
+
 ## Concept
-3D Globe data viewer for FGx Terrain data.
+Mission
+Provide data viewers for FGx Terrain height map data in JavaScript as 3D globes and as flat maps with 3D elevations.
+
 
 ## Notes
 In the right hand dropdown note: FGx Terrain > displays heightmaps as bitmaps
@@ -18,13 +30,22 @@ This release does dot yet support reading heightmaps and translating the data to
 
 
 ### Copyright and License
-copyright &copy; 2013 Jaanga authors ~ All work herein is under the [MIT License](http://jaanga.github.io/libs/jaanga-copyright-and-mit-license.md)
-
 [FGx copyright notice and license]( https://github.com/fgx/fgx.github.io/blob/master/fgx-copyright-notice-and-license.md )
 
 This repository is at an early and volatile stage. Not all licensing requirements may have been fully met let alone identified. It is the intension of the authors to play fair and all such requirements will either be met or the feature in question will turned off.
 
 ### Change Log
+
+2013-12-31 ~ Theo
+
+* FGx 3D Haiti added
+* Unicam images added
+
+2013-12-27 ~ Theo
+
+* R2 started
+* Edits to read me
+
 
 2013-12-26 ~ Theo
 
