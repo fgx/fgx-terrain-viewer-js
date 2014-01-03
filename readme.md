@@ -5,7 +5,10 @@ Live demo ~ 3D Globe: [FGx Terrain Viewer Clobe JS]( http://fgx.github.io/fgx-te
 
 Live demo 3D flat: [FGx Terrain Viewer Flat JS]( http://fgx.github.io/fgx-terrain-viewer-js/r2/fgx-terrain-viewer-flat.html )
 
-- very preliminary
+* This may be the better file to start with
+
+Both the files need a lot of work. Do try the new wireframe and 'Glo Tect' image overlays...
+
 
 Live demo: [FGx 3D Haiti]( haiti/haiti.html )
 
