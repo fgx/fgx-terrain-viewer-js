@@ -10,7 +10,7 @@ Live demo 3D flat: [FGx Terrain Viewer Flat JS]( http://fgx.github.io/fgx-terrai
 Both the files need a lot of work. Do try the new wireframe and 'Glo Tect' image overlays...
 
 
-Live demo: [FGx 3D Haiti]( haiti/haiti.html )
+Live demo: [FGx 3D Haiti]( http://fgx.github.io/fgx-terrain-viewer-js/haiti/haiti.html )
 
 * First crack at getting Yves' data on line in 3D.
 * Camera target point is hard-wired for each zoom level. 
