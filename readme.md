@@ -1,9 +1,9 @@
 ![FGx Logo]( http://fgx.github.io/images/fgx-cap-40x30.png) FGx Terrain Viewer JS R1
 ====================================================================================
 
-Live demo ~ 3D Globe: [FGx Terrain Viewer Clobe JS]( index.html "Happy viewing!" )
+Live demo ~ 3D Globe: [FGx Terrain Viewer Clobe JS]( http://fgx.github.io/fgx-terrain-viewer-js/index.html "Happy viewing!" )
 
-Live demo 3D flat: [FGx Terrain Viewer Flat JS]( r2/fgx-terrain-viewer-flat.html )
+Live demo 3D flat: [FGx Terrain Viewer Flat JS]( http://fgx.github.io/fgx-terrain-viewer-js/r2/fgx-terrain-viewer-flat.html )
 
 - very preliminary
 
@@ -16,7 +16,7 @@ Live demo: [FGx 3D Haiti]( haiti/haiti.html )
 Nice Height Maps
 
 * [Global Tectonics Images]( http://fgx.github.io/fgx-terrain-viewer-js/images/readme.html )
-* [Global Tectonics TMS images]( http://fgx.github.io/fgx-terrain-viewer-js/ )
+* [Global Tectonics TMS images]( https://github.com/fgx/fgx-terrain-viewer-js/tree/gh-pages/glo-tect )
 
 ## Concept
 Mission
@@ -38,6 +38,12 @@ This release does dot yet support reading heightmaps and translating the data to
 This repository is at an early and volatile stage. Not all licensing requirements may have been fully met let alone identified. It is the intension of the authors to play fair and all such requirements will either be met or the feature in question will turned off.
 
 ### Change Log
+
+2014-01-03 ~ Theo
+
+* Viewer updates
+* Glo Tect images
+* Full GloText PNG
 
 2013-12-31 ~ Theo
 
