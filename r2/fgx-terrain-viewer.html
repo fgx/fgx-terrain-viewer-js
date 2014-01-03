@@ -333,8 +333,8 @@ console.log( 'ulLwt ', ulLatViewTile.toFixed(2), ' ~ lrLat ' , lrLatViewTile.toF
 
 	function getImage( phiDelta, thetaStart, thetaDelta, x, y ) {
 		var elevationsImage = document.createElement('img' )
-		//elevationsImage.src = '../../fgx-terrain/' + FGx.zoom + '/' + x + '/' + y + '.png';
-		elevationsImage.src = '../../../../../../../Temp/node-try/test/' + FGx.zoom + '/' + x + '/' + y + '.png';
+		elevationsImage.src = '../../fgx-terrain/' + FGx.zoom + '/' + x + '/' + y + '.png';
+		//elevationsImage.src = '../../../../../../../Temp/node-try/test/' + FGx.zoom + '/' + x + '/' + y + '.png';
 		//elevationsImage.src = 'http://fgx.github.io/fgx-terrain/' + FGx.zoom + '/' + x + '/' + y + '.png';
 //		elevationsImage = document.body.appendChild( elevationsImage );
 		elevationsImage.onload = function() { initCanvas( phiDelta, thetaStart, thetaDelta, x, y, elevationsImage ); };
