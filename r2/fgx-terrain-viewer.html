@@ -18,10 +18,10 @@
 	var FGx = FGx || {};
 	FGx.fileName = '../places-2000.csv';
 
-	FGx.startTime = new Date();	
-	FGx.zoom = 0;	
-	
-	FGx.mapType = 4;
+	FGx.startTime = new Date();
+	FGx.zoom = 4;
+
+	FGx.mapType = 10;
 	FGx.mapTypes = [
 		['Google Maps','http://mt1.google.com/vt/x='],
 		['Google Maps Terrain','http://mt1.google.com/vt/lyrs=t&x='],
@@ -32,21 +32,23 @@
 		['MapQuest OSM', 'http://otile3.mqcdn.com/tiles/1.0.0/osm/'],
 		['MapQuest Satellite', 'http://otile3.mqcdn.com/tiles/1.0.0/sat/'],
 		['Stamen terrain background','http://tile.stamen.com/terrain-background/'],
-		['FGx Terrain','../../fgx-terrain/']
+		['FGx Terrain','../../fgx-terrain/'],
+		['FGx GloTect','../../../../../../../Temp/gdal/glo-tect/'],
+		['Wireframe','']
 //		['ArcGIS Server Tiled Map Service','http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/']  // not CORS compatible?
 // 		['http://vec04.maps.yandex.net/tiles?l=map&v=2.26.0&x=3&y=6&z=4&lang=ru-RU		','']
 	];
 	FGx.places = [];
-	FGx.startPlace = 1281; // San Francisco ~ but see below	
+	FGx.startPlace = 1281; // San Francisco ~ but see below
 	FGx.radius = 6371;  // earth
 	FGx.scale = 3; // exaggeration
 
 // settings for each of the 18 zoom levels
-	FGx.cameraDistance = [ 20000, 15000, 12000, 9000, 9000, 9000, 7500, 7000, 6600, 6500, 6450, 6430, 6395, 6380, 6376, 6375, 6373, 6372.3, 6372 ];
+	FGx.cameraDistance = [ 32000, 28000, 12000, 9000, 9000, 9000, 7500, 7000, 6600, 6500, 6450, 6430, 6395, 6380, 6376, 6375, 6373, 6372.3, 6372 ];
 	FGx.cameraRotateSpeed = [ 0.3, 0.3, 0.5, 0.1, 0.1, 0.015, 0.15, 0.08, 0.03, 0.01, 0.005, 0.003, 0.0015, 0.001, 0.0005, 0.0003, 0.0002, 0.0001 ];
 	FGx.tiles = [ 2, 4, 8, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8 ];  // amount of tiles to add before and after center tiles
 
-	var pi = Math.PI, pi2 = 0.5 * Math.PI;
+	var pi = Math.PI, pi2 = pi * 2, pi05 = pi * 0.5;
 	var d2r = pi / 180, r2d = 180 / pi;  // degrees & radians
 	function v(x,y,z){ return new THREE.Vector3(x,y,z); }
 	function cos(a){ return Math.cos(a); }
@@ -98,9 +100,9 @@
 			line = lines[i].split( sep );
 			FGx.places.push( line );
 		}
-// Select random city to be start location 		
+// Select random city to be start location
 		FGx.startPlace = parseInt( Math.random() * FGx.places.length, 10 );
-		
+
 		FGx.lat = FGx.places[ FGx.startPlace][1];
 		FGx.lng = FGx.places[ FGx.startPlace][2]
 
@@ -108,35 +110,41 @@
 		info.style.cssText = 'position: absolute; top: 0px; width: 100% ';
 
 		info.innerHTML = info.txt = '<h1 title="See the world..." >FGx Terrain Viewer R2 ~ ' +
-		
+
 			'<span style="background-color: #ccc; padding: 5px"><a href=# title="Get help and info" onclick=help.style.display="block"; ><large>&#x24D8;</large></a></span> ' +
 			//'<a href=# ><large>&#8597;</large></a>' +
-			
+
 			'<span id="zIn" title="Zoom in" style="background-color: #ccc; padding: 5px"><a href=# onclick="zoomIn()">+</a></span> ' +
 			'<span id="zOut" title="Zoom out" style="background-color: #ccc; padding: 5px"><a href=# onclick="zoomOut()" >-</a></span> ' +
-			'<span title="Reset camera so north/south of globe is vertical" style="background-color: #ccc; padding: 5px"><a href=# onclick="resetCamera()" >&uArr;</a></span> ' +
-						
+			'<span title="Refresh. Click here if you get to edge of map and need more" style="background-color: #ccc; padding: 5px"><a href=# onclick="zoomLevel();" >&#8635</a></span> ' +
 			
+			'<span title="Reset camera so north/south of globe is vertical" style="background-color: #ccc; padding: 5px"><a href=# onclick="resetCamera()" >&uArr;</a></span> ' +
+
+
 			'</h1>' +
 			'<div style=height{900px; >' +
 				'Camera latitude: <input type="text" id="inpLat" value="' + FGx.lat +'" size=8 /> ' +
 				'longitude: <input type="text" id="inpLng" value="' + FGx.lng +'" size=8 /> ' +
 				'<button onclick="FGx.lat = inpLat.value; FGx.lng = inpLng.value; zoomLocation();" title="Click Go to update camera poistion" >Go</button> || ' +
-				
+
 				'<select title="Choose one of ' + FGx.places.length + ' city listings" id=selPlace ' +
 					'onchange="inpLat.value = FGx.lat = FGx.places[this.selectedIndex][1]; ' +
 					'inpLng.value = FGx.lng = FGx.places[this.selectedIndex][2]; ' +
-					'zoomLocation();" >' +
+					'FGx.updateLocation = true; ' +
+					'zoomLevel();" >' +
 				'</select> ~ ' +
 				'<select title="Are we there yet?" id=selZoom onchange="FGx.zoom=this.selectedIndex; zoomLevel();"></select> ' +
 				'<select title="Select the amount of vertical distortion" id=selExagg onchange="FGx.scale= this.selectedIndex; zoomLevel();"></select> ' +
 				'<select title="Select the 2D overlay" id=selMapType ' +
-					'onchange="FGx.mapType=this.selectedIndex; zoomLocation();"><select>' +
+					'onchange="FGx.mapType=this.selectedIndex; zoomLevel();"><select>' +
+				'<br>' +	
+				'<a href="" >Globe Camera</a> &#10070; ' +	
+				'<a href=# onclick=localCamera(); >Local Camera</a> &#10070; ' +
 //				'<br><br>' +
 //				'<a href="" >Trackball Controller</a> &#10070; <a href="JavaScript:getFirstPersonController();" title="Happy flying!" >First Person Controller</a>' +
 //				'  &#10070; <input id=chkPlacards type="checkbox" onchange=togglePlacards(); > Placards' +
 			'</div><br>' +
-			
+
 			'<div id=touch style=display:none;height:' + window.innerHeight + 'px;width:100%; ></div>' +
 			'<div id=help onclick=help.style.display="none"; style=display:none;background-color:#ccc;opacity:0.7;left:0;margin:auto;padding:20px;position:absolute;right:0;top:200px;width:60%; >' +
 				'FGx Terrain Viewer R2<br><br>' +
@@ -165,7 +173,7 @@
 			'</div>' +
 		'';
 
-		for ( var option, i = 0, len = FGx.places.length; i < len; i++ ) {			
+		for ( var option, i = 0, len = FGx.places.length; i < len; i++ ) {
 			selPlace.appendChild( document.createElement( 'option' ) );
 			selPlace.children[i].text = FGx.places[i][0];
 			selPlace.children[i].title = FGx.places[i][1];
@@ -202,7 +210,9 @@
 
 		var camera = FGx.camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 40000 );
 		zoomLocation();
-		var controls = FGx.controls = new THREE.TrackballControls( camera, renderer.domElement );
+		//camera.position = latlon2xyz( FGx.lat * d2r, pi - FGx.lng * d2r,  FGx.cameraDistance[ FGx.zoom ] );
+		//camera.up = v( 0, 1, 0 );		
+		FGx.controls = new THREE.TrackballControls( camera, renderer.domElement );
 
 		var light = new THREE.AmbientLight( 0x888888 );
 		scene.add( light );
@@ -218,141 +228,162 @@
 		light.shadowCameraFov = 1000;
 // light.shadowCameraVisible = true;
 		scene.add( light );
-		
+
 		var geometry = new THREE.AxisHelper( 7000 );
 		scene.add( geometry );
-		
+
 		var stats = FGx.stats = new Stats();
 		stats.domElement.style.cssText = 'position: absolute; right: 0; top: 0px; zIndex: 100; ';
 		document.body.appendChild( stats.domElement );
-		
+
 		selZoom.selectedIndex = FGx.zoom - 1;
-//		selScale.selectedIndex = scale + 11;
 
 		window.addEventListener( 'dblclick', zoomIn, false );
-//		document.addEventListener( 'mouseup', onDocumentMouseUp, false );		
+//		document.addEventListener( 'mouseup', onDocumentMouseUp, false );
 
+		// zoomCamera();
 		zoomLevel();
 	}
-	var imgData;
 	
-	function zoomLevel() {	
-		FGx.startTime = new Date();	
-		var scene = FGx.scene
-		var tiles = FGx.tiles;	
-		var zoom = FGx.zoom;
-		if ( FGx.group ) {
-			scene.remove( FGx.group );
+	var imgData;
+
+	function zoomLevel() {
+		FGx.startTime = new Date();
+		var zoom = selZoom.selectedIndex = FGx.zoom;
+		var tiles = FGx.tiles;
+
+		if ( FGx.terrain ) {
+			FGx.scene.remove( FGx.terrain );
+			scene = new THREE.Scene();
 		}
-		var group = FGx.group = new THREE.Object3D();
-		
-		selZoom.selectedIndex = FGx.zoom;
-		zoomCamera( zoom );
+		FGx.terrain = new THREE.Object3D();
+		FGx.scene.add( FGx.terrain );
 
-
+		zoomCamera();
+// console.log( FGx.cameraLatitude, FGx.cameraLongitude
 // see http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers
-		var xCenter = long2tile( FGx.cameraLongitude, zoom);
-		var yCenter = lat2tile( FGx.cameraLatitude, zoom);
-		var count = pow( 2, zoom );
-		
-		if ( zoom === 1 ) {
-			var xStart = 0
-			var xFinish = 2;
-			var yStart = 0;
-			var yFinish = 2;
-		} else {		
+		var xViewTile = long2tile( FGx.cameraLongitude, zoom);
+		var yViewTile = lat2tile( FGx.cameraLatitude, zoom);
+		var tilesPerSide = pow( 2, zoom );
 
-			// var xStart = xCenter - tiles[ zoom];
-			var xStart = xCenter;
-			if ( xStart < 0 ) xStart = 0;
-			// var xFinish = xCenter + tiles[zoom];
-			var xFinish = xCenter + 1; // tiles[zoom];
-			if ( xFinish > count ) xFinish = count;
+		if ( zoom === 1 ) {
+			var xTileStart = 0
+			var xTileFinish = 2;
+			var yTileStart = 0;
+			var yTileFinish = 2;
+		} else {
 			
-			//var yStart = yCenter - tiles[zoom];
-			var yStart = yCenter;
-			if ( yStart < 0 ) yStart = 0;
-			// var yFinish = yCenter + tiles[zoom];
-			var yFinish = yCenter + 1;
-			if ( yFinish > count ) yFinish = count;
-		
+var ulLonViewTile = tile2long( xViewTile, zoom);
+var lrLonViewTile = tile2long( xViewTile + 1, zoom);
+
+if ( (ulLonViewTile - FGx.cameraLongitude ) < ( FGx.cameraLongitude - lrLonViewTile) ) {
+	var xTileStart = xViewTile - 1;
+	var xTileFinish = xViewTile + 1;
+} else {
+	var xTileStart = xViewTile;
+	var xTileFinish = xViewTile + 2;	
+}					
+
+			// var xSTiletart = xViewTile - tiles[ zoom];
+			var xTileStart = xViewTile;
+			if ( xTileStart < 0 ) xTileStart = 0;
+			// var xFinish = viewTileX + tiles[zoom];
+			var xTileFinish = xViewTile + 2; // tiles[zoom];
+			if ( xTileFinish > tilesPerSide ) xTileFinish = tilesPerSide;
+			
+			
+var ulLatViewTile = tile2lat( yViewTile, zoom);
+var lrLatViewTile = tile2lat( yViewTile + 1, zoom);
+
+if ( (ulLatViewTile - FGx.cameraLatitude ) < ( FGx.cameraLatitude - lrLatViewTile) ) {
+	var yTileStart = yViewTile - 1;
+	var yTileFinish = yViewTile + 1;
+} else {
+	var yTileStart = yViewTile;
+	var yTileFinish = yViewTile + 2;	
+}				
+
+			//var yStart = viewTileY - tiles[zoom];
+			//var yTileStart = yViewTile;
+			if ( yTileStart < 0 ) yTileStart = 0;
+			// var yFinish = viewTileY + tiles[zoom];
+			// var yTileFinish = yViewTile + 2;
+			if ( yTileFinish > tilesPerSide ) yTileFinish = tilesPerSide;
 		}
-// console.log( 'll', cameraLatitude, cameraLongitude, 'z', zoom, 'x', xCenter, xStart, xFinish,'y', yCenter );
+console.log( 'Lat ', FGx.cameraLatitude.toFixed(2), ' Lon ', FGx.cameraLongitude.toFixed(2) );
+console.log( 'zoom', zoom, ' ~ x', xViewTile, xTileStart, xTileFinish,' ~ y', yViewTile, yTileStart, yTileFinish );
+
+console.log( 'ulLwt ', ulLatViewTile.toFixed(2), ' ~ lrLat ' , lrLatViewTile.toFixed(2) );
 
 // angles
+		var phiDelta = pi2 / tilesPerSide;  // between longitudes
+		var thetaStart, thetaDelta, lat1, lat2; // first latitude
 
-		var deltaPhi = 2.0 * pi / pow( 2, zoom );  // between longitudes
-		var theta, deltaTheta, lat1, lat2; // first latitude
-
-		var tileCount = 0;
-		for (var y = yStart; y < yFinish; y++) {
+		for (var y = yTileStart; y < yTileFinish; y++) {
 			lat1 = tile2lat( y, zoom);
 			lat2 = tile2lat( y + 1, zoom);
-			deltaTheta = d2r * (lat1 - lat2);
-			theta = pi2 - lat1 * d2r;
-			for (var x = xStart; x < xFinish; x++) {
-				getImage( deltaPhi, theta, deltaTheta, x, y );
+			thetaDelta = (lat1 - lat2) * d2r;
+			thetaStart = pi05 - lat1 * d2r;
+			for (var x = xTileStart; x < xTileFinish; x++) {
+				getImage( phiDelta, thetaStart, thetaDelta, x, y );
 			}
 		}
-console.log( xStart, xFinish, yStart, yFinish);
-		scene.add( group );
-		
-		console.log( new Date() - FGx.startTime );
+// console.log( xTileStart, xTileFinish, yTileStart, yTileFinish);
 	}
-	
-	function getImage( deltaPhi, theta, deltaTheta, x, y ) {
+
+	function getImage( phiDelta, thetaStart, thetaDelta, x, y ) {
 		var elevationsImage = document.createElement('img' )
 		//elevationsImage.src = '../../fgx-terrain/' + FGx.zoom + '/' + x + '/' + y + '.png';
 		elevationsImage.src = '../../../../../../../Temp/node-try/test/' + FGx.zoom + '/' + x + '/' + y + '.png';
 		//elevationsImage.src = 'http://fgx.github.io/fgx-terrain/' + FGx.zoom + '/' + x + '/' + y + '.png';
 //		elevationsImage = document.body.appendChild( elevationsImage );
-		elevationsImage.onload = function() { initCanvas( deltaPhi, theta, deltaTheta, x, y, elevationsImage ); };
+		elevationsImage.onload = function() { initCanvas( phiDelta, thetaStart, thetaDelta, x, y, elevationsImage ); };
 	}
-	
-	function initCanvas( deltaPhi, theta, deltaTheta, x, y, image ) {
+
+	function initCanvas( phiDelta, thetaStart, thetaDelta, x, y, image ) {
 		imgData = getHeightData( image );
-		var scene = FGx.scene
-		var tiles = FGx.tiles;	
-		var zoom = FGx.zoom;	
-		var group = FGx.group;
+		var terrain = FGx.terrain;
+		var zoom = FGx.zoom;
+
 		var geometry, mesh, mapTexture, material;
 		var markerGeometry = new THREE.CubeGeometry( 200 / (zoom * 1), 200 /  (zoom * 1), 2000 /  (zoom * 1) );
-		var markerMaterial = new THREE.MeshNormalMaterial();	
-// Build the test markers			
+		var markerMaterial = new THREE.MeshNormalMaterial();
+
+// Build the test markers
 		mesh = new THREE.Mesh( markerGeometry, markerMaterial );
-		mesh.position = latlon2xyz(  pi2 + theta , x * deltaPhi - pi, 6371 );
+		mesh.position = latlon2xyz(  pi05 + thetaStart , x * phiDelta - pi, FGx.radius );
 		mesh.lookAt( v( 0, 0, 0 ) );
-		group.add( mesh );
-// console.log( zoom, 'lat', r2d * ( theta), 'lon',  r2d * x * deltaPhi , 0 * deltaPhi, mesh.position);
-		
-		if ( FGx.mapType > 3 ) {
-			mapTexture = THREE.ImageUtils.loadTexture( FGx.mapTypes[ FGx.mapType ][1] + zoom + "/" + x + "/" + y + ".png" );
-		} else {
+		terrain.add( mesh );
+// console.log( zoom, 'lat', r2d * ( thetaStart), 'lon',  r2d * x * phiDelta , 0 * phiDelta, mesh.position);
+
+		if ( FGx.mapType < 4  ) {
 			mapTexture = THREE.ImageUtils.loadTexture( FGx.mapTypes[ FGx.mapType ][1] + x + "&y="+ y + "&z=" + zoom );
+			material = new THREE.MeshPhongMaterial( { map: mapTexture } );
+		} else if ( FGx.mapType < 11 ) {
+			mapTexture = THREE.ImageUtils.loadTexture( FGx.mapTypes[ FGx.mapType ][1] + zoom + "/" + x + "/" + y + ".png" );
+			material = new THREE.MeshPhongMaterial( { map: mapTexture } );
+		} else {
+			material = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } );
 		}
+// console.log( x, y, zoom, FGx.mapTypes[ FGx.mapType ][1] + zoom + "/" + x + "/" + y + ".png" );
+		geometry = new THREE.SphereGeometry( FGx.radius, 255, 255, x * phiDelta - pi, phiDelta, thetaStart, thetaDelta );
 		
-//		material = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } );
-		material = new THREE.MeshPhongMaterial( { map: mapTexture } );
-		
-// console.log( x, y, zoom, FGx.mapTypes[ FGx.mapType ][1] + zoom + "/" + x + "/" + y + ".png" );			
-		geometry = new THREE.SphereGeometry( FGx.radius, 255, 255, x * deltaPhi - pi, deltaPhi, theta, deltaTheta );
-console.log( theta, deltaTheta )
-		
+// console.log( thetaStart, thetaDelta )
+
 		mesh = new THREE.Mesh( geometry, material );
 		var verts = mesh.geometry.vertices;
 		for ( var i = 0; i < 65536; i++ ) {
 			verts[i].multiplyScalar( 1 + 0.001 * FGx.scale  * imgData[i] );
 		}
-			
+
 		mesh.geometry.verticesNeedUpdate = true;
 		mesh.geometry.computeFaceNormals();
 		mesh.geometry.computeVertexNormals();
 		mesh.receiveShadow = true;
 		mesh.castShadow = true;
-		group.add( mesh );
-			
+		terrain.add( mesh );
 	}
-	
+
 //	return array with height data from img
 	function getHeightData( elevationsImage ) {
 		var scale = 0.2;
@@ -361,9 +392,9 @@ console.log( theta, deltaTheta )
 		canvas.width = canvas.height = 256;
 		var context = canvas.getContext( '2d' );
 		context.drawImage( elevationsImage, 0, 0 );
-		
+
 		var imgd = context.getImageData( 0, 0, 256,	256 );
-		var pix = imgd.data;		
+		var pix = imgd.data;
 		var data = new Float32Array( 65536 );
 		var j=0, all;
 		for (var i = 0, len = pix.length; i < len; i += 4) {
@@ -371,19 +402,27 @@ console.log( theta, deltaTheta )
 			data[j++] = scale * all;
 		}
 		return data;
-	}	
-	
+	}
+
 	function zoomCamera() {
 		var camera = FGx.camera;
 		var controls = FGx.controls;
 		var zoom = FGx.zoom;
 		var cameraLatitude = FGx.cameraLatitude;
 		var cameraLongitude = FGx.cameraLongitude;
-		
+
+		camera.up = v( 0, 1, 0 );
 		camera.lookAt( v( 0, 0, 0 ) );
+		
 		var c = camera.position.clone();
-		var scale = FGx.cameraDistance[ zoom ] / camera.position.distanceTo( v( 0, 0, 0) );
-		camera.position.set( scale * c.x, scale * c.y, scale * c.z  );
+		if ( FGx.updateLocation === true) {
+			camera.position = latlon2xyz( FGx.lat * d2r, pi - FGx.lng * d2r,  FGx.cameraDistance[ FGx.zoom ] );
+			FGx.updateLocation = false;
+		} else {
+			
+			var scale = FGx.cameraDistance[ zoom ] / camera.position.distanceTo( v( 0, 0, 0) );
+			camera.position.set( scale * c.x, scale * c.y, scale * c.z  );
+		}
 		
 		if ( c.y > 0 ) {
 			FGx.cameraLatitude = cameraLatitude = r2d * c.angleTo( v(c.x, 0, c.z) );
@@ -391,9 +430,9 @@ console.log( theta, deltaTheta )
 			FGx.cameraLatitude = cameraLatitude = -r2d *  c.angleTo( v(c.x, 0, c.z) );
 		}
 
-		var xaxis = v( 1, 0, 0 );
+		var xAxis = v( 1, 0, 0 );
 		var xz = v( c.x, 0, c.z);
-		var cos_ang = xz.dot( xaxis ) / ( xz.length() * xaxis.length() );  // where did I find this?
+		var cos_ang = xz.dot( xAxis ) / ( xz.length() * xAxis.length() );  // where did I find this?
 		cameraLongitude = pi - Math.acos( cos_ang);
 		if ( c.z < 0 ) {
 			cameraLongitude = -cameraLongitude;
@@ -414,15 +453,18 @@ console.log( theta, deltaTheta )
 			controls.dynamicDampingFactor = 0.5 * zoom ;   //0.2;
 			controls.zoomSpeed = 1.0 / (zoom * zoom * zoom) ;  // 1.2;;
 		}
+console.log( 'ZC', FGx.camera );	
+// zoomLevel();	
 	}
-	
+
 	function zoomLocation() {
 		var camera = FGx.camera;
 		camera.position = latlon2xyz( FGx.lat * d2r, pi - FGx.lng * d2r,  FGx.cameraDistance[ FGx.zoom ] );
 		camera.up = v( 0, 1, 0 );
 		zoomCamera();
-	}	
-	
+		//zoomLevel();		
+	}
+
 	function zoomIn() {
 		FGx.zoom++;
 		if ( FGx.zoom > 18 ) FGx.zoom = 18;
@@ -451,6 +493,23 @@ console.log( theta, deltaTheta )
 		camera.lookAt( v( 0, 0, 0 ) );
 	}
 
+	function localCamera() {
+
+		var c = FGx.camera.position.clone();
+		var camera = FGx.camera;
+		var currentCameraPoistion = latlon2xyz( FGx.cameraLatitude * d2r, pi - FGx.cameraLongitude * d2r,  FGx.cameraDistance[ FGx.zoom ] ) ;
+		
+		
+		FGx.camera.up = v( 0, 1, 0 );	
+		var pt = latlon2xyz( parseFloat(FGx.lat) * d2r, pi - parseFloat(FGx.lon) * d2r,  FGx.cameraDistance[ FGx.zoom ] ) ;
+		FGx.camera.lookAt( pt );		
+		FGx.camera.position = latlon2xyz( parseFloat(FGx.lat) * d2r, pi - parseFloat(FGx.lon) * d2r,  7000 );
+		// camera.position.set( c.x, c.y, c.z );
+		FGx.controls = new THREE.TrackballControls( camera, FGx.renderer.domElement );
+
+console.log( FGx.camera );	
+	}
+	
 	function animate() {
 		requestAnimationFrame( animate );
 		FGx.controls.update();
@@ -458,17 +517,17 @@ console.log( theta, deltaTheta )
 		FGx.stats.update();
 		FGx.light.position = FGx.camera.position
 	}
-	
+
 	function requestFile( fname ) {
 		var xmlHttp = new XMLHttpRequest();
 		xmlHttp.open( 'GET', fname, false );
 		xmlHttp.send( null );
 		return xmlHttp.responseText;
-	}	
-	
+	}
+
 	function onDocumentMouseUp() {
-		zoomLevel();
-	}		
+		// zoomLevel();
+	}
 </script>
 </body>
 </html>

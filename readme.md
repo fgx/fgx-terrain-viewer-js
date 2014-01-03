@@ -1,19 +1,22 @@
 ![FGx Logo]( http://fgx.github.io/images/fgx-cap-40x30.png) FGx Terrain Viewer JS R1
 ====================================================================================
 
-Live Demo: [FGx Terrain Viewer JS]( http://fgx.github.io/fgx-terrain-viewer-js/index.html "Happy viewing!" )
+Live demo ~ 3D Globe: [FGx Terrain Viewer Clobe JS]( index.html "Happy viewing!" )
+
+Live demo 3D flat: [FGx Terrain Viewer Flat JS]( r2/fgx-terrain-viewer-flat.html )
 
 - very preliminary
 
-Live demo: [FGx 3D Haiti]( http://fgx.github.io/fgx-terrain-viewer-js/haiti/haiti.html )
+Live demo: [FGx 3D Haiti]( haiti/haiti.html )
 
 * First crack at getting Yves' data on line in 3D.
-* Camera target point id hard-wired for each zoom level. 
-* Generally aims towards Pot au Prince except for zoom level 5.
+* Camera target point is hard-wired for each zoom level. 
+* Generally aims towards Port au Prince except for zoom level 5.
  
 Nice Height Maps
 
-* [Globa Tectonics Images]( images/readme.html )
+* [Global Tectonics Images]( http://fgx.github.io/fgx-terrain-viewer-js/images/readme.html )
+* [Global Tectonics TMS images]( http://fgx.github.io/fgx-terrain-viewer-js/ )
 
 ## Concept
 Mission
