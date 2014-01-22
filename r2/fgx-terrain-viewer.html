@@ -208,6 +208,8 @@
 		document.body.appendChild( renderer.domElement );
 		var scene = FGx.scene = new THREE.Scene();
 
+		THREE.ImageUtils.crossOrigin = 'anonymous';
+
 		var camera = FGx.camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 40000 );
 		zoomLocation();
 		//camera.position = latlon2xyz( FGx.lat * d2r, pi - FGx.lng * d2r,  FGx.cameraDistance[ FGx.zoom ] );
